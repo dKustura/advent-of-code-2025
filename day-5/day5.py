@@ -11,33 +11,25 @@ def merge_ranges(lines: List[str]):
             start, end = map(int, range_line.split('-'))
             insertion_start = bisect_left(arr, start)
             insertion_end = bisect_left(arr, end)
-            if insertion_start == insertion_end:
-                # Only insert if both start and end are outside existing ranges (even position)
-                if insertion_start % 2 == 0:
-                    arr.insert(insertion_start, start)
-                    arr.insert(insertion_start + 1, end)
-                # If both are inside (odd position), the new range is contained in an existing range, do nothing
-            else:
-                start_is_even = insertion_start % 2 == 0
-                end_is_even = insertion_end % 2 == 0
-                
-                if not start_is_even and not end_is_even:
-                    # Delete everything between insertion_start and insertion_end
-                    del arr[insertion_start:insertion_end]
-                elif start_is_even and end_is_even:     
-                    # Delete everything between insertion_start and insertion_end
-                    del arr[insertion_start:insertion_end]
-                    # Insert start and end at the now-cleared position
-                    arr.insert(insertion_start, start)
-                    arr.insert(insertion_start + 1, end)
-                elif start_is_even and not end_is_even:
-                    # Add only start and delete everything between insertion_start and insertion_end
-                    del arr[insertion_start:insertion_end]
-                    arr.insert(insertion_start, start)
-                else:
-                    # Add only end and delete everything between insertion_start and insertion_end
-                    del arr[insertion_start:insertion_end]
-                    arr.insert(insertion_start, end)
+            
+            start_is_even = insertion_start % 2 == 0
+            end_is_even = insertion_end % 2 == 0
+            
+            # Delete everything between insertion_start and insertion_end
+            del arr[insertion_start:insertion_end]
+            
+            # Insert new boundaries based on positions
+            if start_is_even and end_is_even:
+                # Both outside existing ranges -> new range
+                arr.insert(insertion_start, start)
+                arr.insert(insertion_start + 1, end)
+            elif start_is_even:
+                # Start outside, end inside -> extends existing range backward
+                arr.insert(insertion_start, start)
+            elif end_is_even:
+                # Start inside, end outside -> extends existing range forward
+                arr.insert(insertion_start, end)
+            # else both are odd (both inside existing ranges) -> merges ranges, just delete between them
             
     return arr
     
